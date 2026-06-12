@@ -9,19 +9,26 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Initialize GoogleGenAI with proper telemetry headers
-const apiKey = process.env.GEMINI_API_KEY;
-let ai: GoogleGenAI | null = null;
+// Initialize GoogleGenAI with proper telemetry headers / lazy instantiation
+let aiInstance: GoogleGenAI | null = null;
 
-if (apiKey) {
-  ai = new GoogleGenAI({
-    apiKey: apiKey,
-    httpOptions: {
-      headers: {
-        "User-Agent": "aistudio-build",
+function getGoogleGenAI(): GoogleGenAI {
+  const currentKey = process.env.GEMINI_API_KEY;
+  if (!currentKey) {
+    throw new Error("GEMINI_API_KEY is not defined in process.env");
+  }
+
+  if (!aiInstance) {
+    aiInstance = new GoogleGenAI({
+      apiKey: currentKey,
+      httpOptions: {
+        headers: {
+          "User-Agent": "aistudio-build",
+        },
       },
-    },
-  });
+    });
+  }
+  return aiInstance;
 }
 
 app.use(express.json());
@@ -40,9 +47,13 @@ app.post("/api/chat", async (req, res) => {
       return res.status(400).json({ error: "Mensagens inválidas ou ausentes" });
     }
 
-    if (!ai) {
-      return res.status(503).json({ 
-        error: "O Assistente de IA não está configurado. Verifique a chave GEMINI_API_KEY." 
+    let aiClient;
+    try {
+      aiClient = getGoogleGenAI();
+    } catch (e: any) {
+      console.warn("GoogleGenAI lazy initialization failed:", e.message);
+      return res.status(503).json({
+        error: "O Assistente de IA não está ativado no momento. Verifique se a sua chave GEMINI_API_KEY está configurada no painel de Configurações (Secrets) do AI Studio."
       });
     }
 
@@ -63,7 +74,7 @@ app.post("/api/chat", async (req, res) => {
       "4. Fonoaudiologia: Reabilitação de linguagem, atrasos de fala, oratória, distúrbios vocais e deglutição.\n" +
       "5. Fisioterapia: Reabilitação traumato-ortopédica, pilates clínico, RPG, reabilitação esportiva e controle de dores.\n\n" +
       "Corpo Clínico do Instituto SerClin:\n" +
-      "- Dr. Mateus Silva (Psiquiatra): Especialista em transtornos de humor, depressão, ansiedade e terapia médica continuada.\n" +
+      "- Dr. Mateus Silva (Psiquiatra): Especialista em transtornos de humor, depression, ansiedade e terapia médica continuada.\n" +
       "- Dra. Laura Mendes (Psicóloga Clínica): Focada em terapia cognitivo-comportamental (TCC), inteligência emocional e autoconhecimento para adultos.\n" +
       "- Dra. Renata Borges (Psicóloga Infantil): Psicoterapeuta infantil e ludoescuta especializada em desenvolvimento infantojuvenil e apoio à família.\n" +
       "- Dra. Carolina Castro (Nutricionista Funcional): Coach de saúde e especialista em reeducação nutricional, bem-estar digestivo e desempenho esportivo.\n" +
@@ -77,7 +88,7 @@ app.post("/api/chat", async (req, res) => {
       "5. Responda de forma organizada, usando parágrafos espaçados, tópicos simpáticos se necessário, mantendo as mensagens visualmente elegantes e acolhedoras.";
 
     // Generate content using gemini-3.5-flash (Basic clean tasks + Q&A standard model)
-    const response = await ai.models.generateContent({
+    const response = await aiClient.models.generateContent({
       model: "gemini-3.5-flash",
       contents: formattedContents,
       config: {
