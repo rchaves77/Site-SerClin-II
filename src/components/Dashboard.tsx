@@ -133,12 +133,7 @@ export function Dashboard({ setView }: DashboardProps) {
     forma_pagamento: "Pix"
   });
 
-  // --- REGRA DE ACESSO DA ESTÁCIO ---
-  const isEstacio = userEmail ? (
-    userEmail.endsWith('@alunos.estacio.br') || 
-    userEmail.endsWith('@professores.estacio.br') || 
-    userEmail.endsWith('@estacio.br')
-  ) : false;
+
 
   const fetchData = async () => {
     try {
@@ -422,8 +417,8 @@ export function Dashboard({ setView }: DashboardProps) {
       `}</style>
 
      {/* HEADER INTEGRAL SERCLIN - AJUSTADO PARA MOBILE LIMPO */}
-      <header className="bg-white border-b px-4 md:px-8 shadow-sm z-50 sticky top-0 w-full pt-16">
-        <div className="flex justify-between items-center h-[95px] max-w-[1800px] mx-auto">
+      <header className="bg-white border-b px-4 md:px-8 shadow-sm z-50 sticky top-0 w-full">
+        <div className="flex justify-between items-center h-[72px] max-w-[1800px] mx-auto">
           
           {/* ESQUERDA: LOGO AMPLIADO (PC E MOBILE) */}
           <div className="flex items-center gap-3 shrink-0 cursor-pointer" onClick={() => navigate('/')}>
@@ -496,13 +491,6 @@ export function Dashboard({ setView }: DashboardProps) {
                 <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-purple-600">Acessos</span>
               </div>
             )}
-
-            <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/encaminhamentos')}>
-              <Button variant="ghost" size="icon" className="text-emerald-600 hover:bg-emerald-50 h-10 w-10">
-                <GraduationCap size={24}/>
-              </Button>
-              <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-emerald-600">Unimeta</span>
-            </div>
           </div>
 
           {/* DIREITA: STATUS, AGENDAR (PC) E MENU (MOBILE) */}
@@ -527,7 +515,7 @@ export function Dashboard({ setView }: DashboardProps) {
             </Button>
 
             {/* BOTÃO CONFIRMAR AMANHÃ (LÓGICA DE FIM DE SEMANA) */}
-            {!isEstacio && meuPerfil?.permissao_confirmacao_amanha && (
+            {meuPerfil?.permissao_confirmacao_amanha && (
               <div 
                 className="flex flex-col items-center gap-1 cursor-pointer group relative" 
                 onClick={() => setIsConfirmacaoAmanhaOpen(true)}
@@ -594,7 +582,7 @@ export function Dashboard({ setView }: DashboardProps) {
                 </Button>
 
                 {/* BOTÃO CONFIRMAR NA GAVETA */}
-                {!isEstacio && meuPerfil?.permissao_confirmacao_amanha && (
+                {meuPerfil?.permissao_confirmacao_amanha && (
                   <Button 
                     variant="ghost" 
                     className="w-full justify-start gap-4 text-emerald-700 h-12 rounded-xl font-bold uppercase text-[11px] bg-emerald-50/50" 
@@ -609,10 +597,6 @@ export function Dashboard({ setView }: DashboardProps) {
                     )}
                   </Button>
                 )}  
-
-                <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/encaminhamentos'); setIsMenuMobileOpen(false); }}>
-                  <GraduationCap size={20} className="text-emerald-600"/> Unimeta
-                </Button>
 
                 {(isAdmin || isGestorSeguro) && (
                   <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/usuarios'); setIsMenuMobileOpen(false); }}>
@@ -632,81 +616,66 @@ export function Dashboard({ setView }: DashboardProps) {
       </header>
 
       {/* ÁREA PRINCIPAL DO DASHBOARD */}
-      {!isEstacio ? (
-        <main className="flex-1 p-2 md:p-4 overflow-hidden text-left flex flex-col relative mt-10">
-          {isGestorSeguro && (
-            <div className="mb-3 flex justify-end z-10 shrink-0">
-              <Select value={filtroProfissional} onValueChange={setFiltroProfissional}>
-                <SelectTrigger className="bg-white border border-gray-100 text-[#0a2d54] font-black h-11 text-xs rounded-2xl px-4 shadow-sm w-full md:w-[250px] cursor-pointer">
-                  <div className="flex items-center gap-2 uppercase tracking-widest">
-                    <Filter size={16} className="text-emerald-500" />
-                    <SelectValue placeholder="Filtrar Agenda" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="geral">Visão Geral (Todos)</SelectItem>
-                  {equipe.map((p: any) => (
-                    <SelectItem key={p.id} value={p.nome}>
-                      {p.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+      <main className="flex-1 p-2 md:p-4 overflow-hidden text-left flex flex-col relative mt-2">
+        {isGestorSeguro && (
+          <div className="mb-3 flex justify-end z-10 shrink-0">
+            <Select value={filtroProfissional} onValueChange={setFiltroProfissional}>
+              <SelectTrigger className="bg-white border border-gray-100 text-[#0a2d54] font-black h-11 text-xs rounded-2xl px-4 shadow-sm w-full md:w-[250px] cursor-pointer">
+                <div className="flex items-center gap-2 uppercase tracking-widest">
+                  <Filter size={16} className="text-emerald-500" />
+                  <SelectValue placeholder="Filtrar Agenda" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="geral">Visão Geral (Todos)</SelectItem>
+                {equipe.map((p: any) => (
+                  <SelectItem key={p.id} value={p.nome}>
+                    {p.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
-          <Card className="flex-1 border-none shadow-sm bg-white rounded-[2rem] overflow-hidden flex flex-col">
-            <CardContent className="p-0 flex-1 min-h-[500px]">
-              <Calendar 
-                style={{ height: '100%', minHeight: '65vh' }}
-                localizer={localizer} culture='pt-BR' messages={mensagensPortugues}
-                events={filtroProfissional === "geral" ? events : events.filter((e: any) => e.original?.profissional_nome === filtroProfissional)} 
-                view={view} onView={setViewCalendar} date={date} onNavigate={setDate} 
-                views={['day', 'week', 'month', 'agenda']} 
-                min={minTime} 
-                max={maxTime} 
-                components={{ event: EventoCustomizado }} 
-                eventPropGetter={(event: any) => ({ style: { backgroundColor: event.color, color: 'white', border: 'none', borderRadius: '6px', opacity: event.original?.status === 'Falta' ? 0.5 : 1 } })}
-                onSelectEvent={(e) => { 
-                  const evt = e.original; 
-                  setEventoSelecionadoId(evt.id); 
-                  setBuscaPaciente(evt.paciente_nome); 
-                  setForm({ ...form, profissional: evt.profissional_nome, paciente_nome: evt.paciente_nome, paciente_id: evt.paciente_id, telefone: aplicarMascaraTelefone(evt.paciente_telefone || ''), sala: evt.sala_id?.toString() || '1', inicio: format(new Date(evt.data_inicio), "yyyy-MM-dd'T'HH:mm"), status: evt.status === 'Presenca' ? 'Presença' : (evt.status || 'Agendado'), duracao: evt.duracao || '40', assinatura_url: evt.assinatura_url || null, valor_atendimento: aplicarMascaraMoeda(evt.valor_atendimento?.toString() || "0"), forma_pagamento: evt.forma_pagamento || "Pix" }); 
-                  setIsAgendamentoOpen(true); 
-                }} 
-              />
-            </CardContent>
-          </Card>
-
-          {meuPerfil?.permissao_agendar && (
-            <button 
-              onClick={() => { 
-                setEventoSelecionadoId(null); 
-                setBuscaPaciente(""); 
-                setForm({ ...form, profissional: isGestorSeguro ? '' : nomeLogado, paciente_id: null, status: 'Agendado', duracao: '40', assinatura_url: null, inicio: format(new Date(), "yyyy-MM-dd'T'HH:mm"), telefone: "", valor_atendimento: "0,00", forma_pagamento: "Pix" }); 
+        <Card className="flex-1 border-none shadow-sm bg-white rounded-[2rem] overflow-hidden flex flex-col">
+          <CardContent className="p-0 flex-grow min-h-[250px] flex flex-col">
+            <Calendar 
+              style={{ height: '100%', flexGrow: 1 }}
+              localizer={localizer} culture='pt-BR' messages={mensagensPortugues}
+              events={filtroProfissional === "geral" ? events : events.filter((e: any) => e.original?.profissional_nome === filtroProfissional)} 
+              view={view} onView={setViewCalendar} date={date} onNavigate={setDate} 
+              views={['day', 'week', 'month', 'agenda']} 
+              min={minTime} 
+              max={maxTime} 
+              components={{ event: EventoCustomizado }} 
+              eventPropGetter={(event: any) => ({ style: { backgroundColor: event.color, color: 'white', border: 'none', borderRadius: '6px', opacity: event.original?.status === 'Falta' ? 0.5 : 1 } })}
+              onSelectEvent={(e) => { 
+                const evt = e.original; 
+                setEventoSelecionadoId(evt.id); 
+                setBuscaPaciente(evt.paciente_nome); 
+                setForm({ ...form, profissional: evt.profissional_nome, paciente_nome: evt.paciente_nome, paciente_id: evt.paciente_id, telefone: aplicarMascaraTelefone(evt.paciente_telefone || ''), sala: evt.sala_id?.toString() || '1', inicio: format(new Date(evt.data_inicio), "yyyy-MM-dd'T'HH:mm"), status: evt.status === 'Presenca' ? 'Presença' : (evt.status || 'Agendado'), duracao: evt.duracao || '40', assinatura_url: evt.assinatura_url || null, valor_atendimento: aplicarMascaraMoeda(evt.valor_atendimento?.toString() || "0"), forma_pagamento: evt.forma_pagamento || "Pix" }); 
                 setIsAgendamentoOpen(true); 
               }} 
-              className="md:hidden fixed bottom-6 right-6 z-[45] bg-blue-600 hover:bg-blue-700 text-white rounded-full h-14 px-6 flex items-center justify-center shadow-[0_8px_30px_rgb(37,99,235,0.4)] active:scale-95 transition-transform cursor-pointer border-none"
-            >
-              <Plus size={20} className="mr-1.5" />
-              <span className="font-black text-[13px] uppercase tracking-widest">Agendar</span>
-            </button>
-          )}
-        </main>
-      ) : (
-        /* TELA EXCLUSIVA PARA QUEM LOGA COM E-MAIL DA ESTÁCIO */
-        <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <GraduationCap size={64} className="text-emerald-500 mb-4 opacity-50" />
-          <h2 className="text-2xl font-black text-[#0a2d54] uppercase tracking-tighter mb-2">Portal Institucional</h2>
-          <p className="text-sm font-bold text-gray-500 mb-8 max-w-md">
-            Bem-vindo (a)! O seu acesso é exclusivo para emissão de encaminhamentos para a clínica-escola.
-          </p>
-          <Button onClick={() => navigate('/sistema/encaminhamentos')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-black h-14 px-8 rounded-full uppercase tracking-widest text-xs shadow-lg border-none cursor-pointer">
-            <FileText size={16} className="mr-2" />
-            Acessar Triagem Unimeta
-          </Button>
-        </main>
-      )}
+            />
+          </CardContent>
+        </Card>
+
+        {meuPerfil?.permissao_agendar && (
+          <button 
+            onClick={() => { 
+              setEventoSelecionadoId(null); 
+              setBuscaPaciente(""); 
+              setForm({ ...form, profissional: isGestorSeguro ? '' : nomeLogado, paciente_id: null, status: 'Agendado', duracao: '40', assinatura_url: null, inicio: format(new Date(), "yyyy-MM-dd'T'HH:mm"), telefone: "", valor_atendimento: "0,00", forma_pagamento: "Pix" }); 
+              setIsAgendamentoOpen(true); 
+            }} 
+            className="md:hidden fixed bottom-6 right-6 z-[45] bg-blue-600 hover:bg-blue-700 text-white rounded-full h-14 px-6 flex items-center justify-center shadow-[0_8px_30px_rgb(37,99,235,0.4)] active:scale-95 transition-transform cursor-pointer border-none"
+          >
+            <Plus size={20} className="mr-1.5" />
+            <span className="font-black text-[13px] uppercase tracking-widest">Agendar</span>
+          </button>
+        )}
+      </main>
 
       {/* MODAL DE CONFIRMAÇÃO DE AMANHÃ */}
       {isConfirmacaoAmanhaOpen && (

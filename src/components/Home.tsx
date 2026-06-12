@@ -145,36 +145,6 @@ export default function Home({ setView, setPreselectedDoctorId }: HomeProps) {
         </section>
 
         
-        {/* --- PORTAL UNIMETA --- */}
-        <section id="unimeta" className="py-24 md:py-48 bg-white text-center relative border-t border-slate-50">
-          <div className="container mx-auto px-4 max-w-7xl space-y-12 md:space-y-20 relative z-10">
-            <div className="flex flex-col items-center gap-6 md:gap-8">
-              <div className="bg-slate-50 border border-slate-100 px-6 py-3 rounded-full shadow-sm flex items-center gap-3">
-                <Award size={18} className="text-secondary" />
-                <span className="text-xs font-black uppercase tracking-[0.3em] text-primary">Portal Acadêmico Unimeta</span>
-              </div>
-              <h3 className="text-5xl md:text-[8rem] lg:text-[10rem] font-black uppercase tracking-[-0.08em] leading-[0.8] text-primary">
-                Estácio <br/><span className="font-serif italic font-light text-slate-500 lowercase">Unimeta</span>
-              </h3>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button 
-                onClick={() => setView("checkin")} 
-                className="bg-primary text-white hover:bg-secondary hover:text-primary font-black px-12 py-5 rounded-[2rem] uppercase text-[11px] tracking-[0.3em] transition-all shadow-xl shadow-primary/20 cursor-pointer border-none"
-              >
-                Entrar no Portal
-              </button>
-              
-              <button 
-                onClick={() => setView("cadastro-usuario")} 
-                className="bg-white border-2 border-slate-100 text-slate-500 hover:border-primary hover:text-primary font-black px-12 py-5 rounded-[2rem] uppercase text-[11px] tracking-[0.3em] transition-all cursor-pointer"
-              >
-                Criar Senha
-              </button>
-            </div>
-          </div>
-        </section>
       </main>
     </div>
   );

@@ -158,23 +158,40 @@ export default function App() {
     }
   };
 
+  const isSystemView = [
+    "acessos",
+    "despesas",
+    "fechamento",
+    "gestao-permissoes",
+    "horarios",
+    "pacientes",
+    "login",
+    "planos",
+    "repasses",
+    "relatorios",
+    "encaminhamentos",
+    "cadastro-usuario"
+  ].includes(view);
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900" id="serclin-app-root">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-950" id="serclin-app-root">
       
-      {/* Navbar header */}
-      <Navbar 
-        currentView={view} 
-        setView={setView} 
-        hasAppointments={appointments.some(a => a.status === "active")}
-      />
+      {/* Navbar header - Only rendered on public facing pages */}
+      {!isSystemView && (
+        <Navbar 
+          currentView={view} 
+          setView={setView} 
+          hasAppointments={appointments.some(a => a.status === "active")}
+        />
+      )}
 
       {/* Main Content Area */}
       <div className="flex-grow flex flex-col animate-fadeIn">
         {renderActiveView()}
       </div>
 
-      {/* Footer banner */}
-      <Footer setView={setView} />
+      {/* Footer banner - Only rendered on public facing pages */}
+      {!isSystemView && <Footer setView={setView} />}
       
     </div>
   );
