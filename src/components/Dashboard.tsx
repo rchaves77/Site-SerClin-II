@@ -399,20 +399,159 @@ export function Dashboard({ setView }: DashboardProps) {
   return (
     <div className="h-[100dvh] w-full bg-gray-50 flex flex-col font-sans overflow-hidden text-left" id="dashboard-system-root">
       <style>{`
-        .rbc-agenda-view table.rbc-agenda-table tbody > tr > td { color: #1f2937 !important; font-weight: 800 !important; font-size: 14px !important; }
-        .rbc-agenda-view { background-color: #ffffff; border-radius: 1.5rem; overflow: hidden; border: 1px solid #e5e7eb; }
-        .rbc-agenda-date-cell, .rbc-agenda-time-cell { color: #0a2d54 !important; font-weight: 800 !important; }
-        .rbc-toolbar button { color: #0a2d54 !important; font-weight: bold; }
-        .rbc-toolbar button.rbc-active { background-color: #0a2d54 !important; color: white !important; }
-        .rbc-event-content { font-size: 13px !important; }
-        .rbc-time-view { border-radius: 1.5rem; overflow: hidden; border: 1px solid #e5e7eb; }
-        .rbc-timeslot-group { border-bottom: 1px solid #f3f4f6 !important; }
-        .rbc-label { color: #9ca3af !important; font-weight: 700 !important; font-size: 11px !important; }
+        /* Visual Geral da Agenda - Altura Otimizada */
+        .rbc-calendar {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          min-height: 0;
+        }
+
+        /* Redução drástica do espaçamento vertical excessivo (Grid ultra-eficiente) */
+        .rbc-timeslot-group {
+          min-height: 40px !important; /* Em vez do padrão de 80px */
+          border-bottom: 1px solid #f3f4f6 !important;
+        }
+        .rbc-time-slot {
+          min-height: 20px !important;
+          font-size: 10px !important;
+          padding: 1px 0 !important;
+        }
+        .rbc-time-gutter .rbc-timeslot-group {
+          border-bottom: none !important;
+        }
+
+        /* Estilo da barra de rolagem interna */
+        .rbc-time-content {
+          flex: 1 1 0% !important;
+          overflow-y: auto !important;
+          min-height: 0 !important;
+          scrollbar-width: thin;
+          scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+        .rbc-time-content::-webkit-scrollbar {
+          width: 6px;
+        }
+        .rbc-time-content::-webkit-scrollbar-track {
+          background: #f1f5f9;
+        }
+        .rbc-time-content::-webkit-scrollbar-thumb {
+          background-color: #cbd5e1;
+          border-radius: 3px;
+        }
+
+        /* Garantir Cabeçalho Fixo (Sticky Header) */
+        .rbc-time-view {
+          display: flex !important;
+          flex-direction: column !important;
+          flex: 1 1 0% !important;
+          min-height: 0 !important;
+          border-radius: 1.5rem;
+          overflow: hidden;
+          border: 1px solid #e5e7eb;
+          background-color: #ffffff;
+        }
+        .rbc-time-header {
+          flex: 0 0 auto !important;
+          position: sticky !important;
+          top: 0 !important;
+          z-index: 10 !important;
+          background-color: #ffffff;
+          border-bottom: 1px solid #e5e7eb;
+        }
+
+        /* Estilo Compacto de Eventos */
+        .rbc-event {
+          padding: 1px 3px !important;
+          min-height: 16px !important;
+          transition: transform 0.1s ease-in-out;
+        }
+        .rbc-event:hover {
+          transform: scale(0.99);
+        }
+        .rbc-event-content {
+          font-size: 11px !important;
+          font-weight: 800 !important;
+          line-height: 1.15 !important;
+          text-transform: uppercase;
+        }
+
+        /* Estilo de Agenda de Compromissos (Mobile) */
+        .rbc-agenda-view {
+          background-color: #ffffff;
+          border-radius: 1.5rem;
+          overflow: hidden;
+          border: 1px solid #e5e7eb;
+          height: 100% !important;
+          display: flex;
+          flex-direction: column;
+        }
+        .rbc-agenda-view .rbc-agenda-content {
+          overflow-y: auto !important;
+          flex: 1 1 0% !important;
+          min-height: 0 !important;
+        }
+        .rbc-agenda-view table.rbc-agenda-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        .rbc-agenda-view table.rbc-agenda-table thead {
+          position: sticky !important;
+          top: 0 !important;
+          z-index: 10 !important;
+          background-color: #f8fafc !important;
+          border-bottom: 2px solid #e2e8f0;
+        }
+        .rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
+          color: #1f2937 !important;
+          font-weight: 800 !important;
+          font-size: 13px !important;
+          padding: 12px 16px !important;
+        }
+        .rbc-agenda-date-cell, .rbc-agenda-time-cell {
+          color: #0a2d54 !important;
+          font-weight: 800 !important;
+        }
+
+        /* Customização Geral da UI */
+        .rbc-toolbar button {
+          color: #0a2d54 !important;
+          font-weight: bold;
+          font-size: 13px !important;
+          border-radius: 0.5rem !important;
+          border: 1px solid #e5e7eb !important;
+          margin: 0 2px !important;
+        }
+        .rbc-toolbar button.rbc-active {
+          background-color: #0a2d54 !important;
+          color: white !important;
+          border-color: #0a2d54 !important;
+        }
+        .rbc-label {
+          color: #64748b !important;
+          font-weight: 800 !important;
+          font-size: 10px !important;
+        }
 
         @media (max-width: 768px) {
-          .rbc-toolbar { flex-direction: column; gap: 8px; height: auto !important; padding: 10px !important; }
-          .fixed.inset-0 .bg-white.rounded-\[2\.5rem\] { max-width: 100% !important; width: 100% !important; height: 100% !important; border-radius: 0 !important; margin: 0 !important; padding-top: env(safe-area-inset-top, 20px) !important; }
-          .sigCanvas { width: 100% !important; height: 120px !important; }
+          .rbc-toolbar {
+            flex-direction: column;
+            gap: 8px;
+            height: auto !important;
+            padding: 10px !important;
+          }
+          .fixed.inset-0 .bg-white.rounded-\[2\.5rem\] {
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            padding-top: env(safe-area-inset-top, 20px) !important;
+          }
+          .sigCanvas {
+            width: 100% !important;
+            height: 120px !important;
+          }
         }
       `}</style>
 
@@ -638,10 +777,10 @@ export function Dashboard({ setView }: DashboardProps) {
           </div>
         )}
 
-        <Card className="flex-1 border-none shadow-sm bg-white rounded-[2rem] overflow-hidden flex flex-col">
-          <CardContent className="p-0 flex-grow min-h-[250px] flex flex-col">
+         <Card className="flex-1 min-h-0 border-none shadow-sm bg-white rounded-[2rem] overflow-hidden flex flex-col">
+          <CardContent className="p-0 flex-1 min-h-0 flex flex-col overflow-hidden">
             <Calendar 
-              style={{ height: '100%', flexGrow: 1 }}
+              style={{ height: '100%', width: '100%' }}
               localizer={localizer} culture='pt-BR' messages={mensagensPortugues}
               events={filtroProfissional === "geral" ? events : events.filter((e: any) => e.original?.profissional_nome === filtroProfissional)} 
               view={view} onView={setViewCalendar} date={date} onNavigate={setDate} 

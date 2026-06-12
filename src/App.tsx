@@ -16,9 +16,22 @@ import { GestaoPermissoes } from "./components/GestaoPermissoes";
 import { Horarios } from "./components/Horarios";
 import { Pacientes } from "./components/Pacientes";
 import { Login } from "./components/Login";
+import { Prontuario } from "./components/Prontuario";
+import { Planos } from "./components/Planos";
+import { Relatorios } from "./components/Relatorios";
+import { RedefinirSenha } from "./components/RedefinirSenha";
+import Obrigado from "./components/Obrigado";
+import { Repasses } from "./components/Repasses";
+import { Validar } from "./components/Validar";
 
 export default function App() {
-  const [view, setView] = useState<string>("home");
+  const [view, setView] = useState<string>(() => {
+    const path = window.location.pathname;
+    if (path.startsWith("/validar/")) {
+      return "validar";
+    }
+    return "home";
+  });
   const [preselectedDoctorId, setPreselectedDoctorId] = useState<string | null>(null);
   const [symptomPreload, setSymptomPreload] = useState<string>("");
   const [appointments, setAppointments] = useState<ScheduledAppointment[]>([]);
@@ -75,6 +88,11 @@ export default function App() {
   };
 
   const renderActiveView = () => {
+    if (view.startsWith("pacientes-")) {
+      const patientId = view.substring(10);
+      return <Prontuario setView={setView} patientId={patientId} />;
+    }
+
     switch (view) {
       case "home":
         return (
@@ -129,8 +147,20 @@ export default function App() {
           <Login setView={setView} />
         );
       case "planos":
-      case "repasses":
+        return <Planos setView={setView} />;
       case "relatorios":
+        return <Relatorios setView={setView} />;
+      case "redefinir-senha":
+        return <RedefinirSenha setView={setView} />;
+      case "obrigado":
+        return <Obrigado setView={setView} />;
+      case "repasses":
+        return <Repasses setView={setView} />;
+      case "validar": {
+        const path = window.location.pathname;
+        const verificationId = path.startsWith("/validar/") ? path.split("/validar/")[1] : "";
+        return <Validar setView={setView} verificationId={verificationId} />;
+      }
       case "encaminhamentos":
         return (
           <div className="p-10 max-w-lg mx-auto text-center mt-28 bg-white shadow-xl rounded-[2.5rem] border border-gray-100 flex flex-col items-center">
@@ -170,8 +200,11 @@ export default function App() {
     "repasses",
     "relatorios",
     "encaminhamentos",
-    "cadastro-usuario"
-  ].includes(view);
+    "cadastro-usuario",
+    "redefinir-senha",
+    "obrigado",
+    "validar"
+  ].includes(view) || view.startsWith("pacientes-");
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-950" id="serclin-app-root">

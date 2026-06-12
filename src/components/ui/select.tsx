@@ -45,6 +45,19 @@ export function SelectValue({ placeholder = "Selecione" }: { placeholder?: strin
     admin: "Administrador",
     secretaria: "Secretária",
     profissional: "Profissional",
+    todos: "Todos Profissionais",
+    "0": "Janeiro",
+    "1": "Fevereiro",
+    "2": "Março",
+    "3": "Abril",
+    "4": "Maio",
+    "5": "Junho",
+    "6": "Julho",
+    "7": "Agosto",
+    "8": "Setembro",
+    "9": "Outubro",
+    "10": "Novembro",
+    "11": "Dezembro",
   };
   const displayVal = ctx?.value ? (labelMap[ctx.value] || ctx.value) : placeholder;
   return <span className="uppercase text-[10px] font-black tracking-wider text-gray-700">{displayVal}</span>;

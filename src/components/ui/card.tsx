@@ -13,6 +13,14 @@ export function Card({ children, className = "" }: CardProps) {
   );
 }
 
+export function CardHeader({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`p-6 pb-2 ${className}`}>{children}</div>;
+}
+
+export function CardTitle({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <h3 className={`font-bold leading-none ${className}`}>{children}</h3>;
+}
+
 interface CardContentProps {
   children: ReactNode;
   className?: string;
